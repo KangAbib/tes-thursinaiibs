@@ -18,8 +18,8 @@ class TaskProvider extends ChangeNotifier {
     notifyListeners();
     try {
       final fetchedTasks = await _apiService.fetchTasks();
-      // Kita bisa batasi jumlah data jika mau
-      _tasks = fetchedTasks.take(20).toList();
+     _tasks = []; 
+
     } catch (e) {
       // bisa tampilkan log atau lempar error
       debugPrint('Error loadTasks: $e');
@@ -31,16 +31,28 @@ class TaskProvider extends ChangeNotifier {
 
   /// Tambah tugas baru (simulasi lokal)
   Future<void> addTask(Task newTask) async {
-    try {
-      final created = await _apiService.addTask(newTask);
-      // Karena API dummy, kita tetap tambahkan ke list lokal
-      _tasks.insert(0, created);
-      notifyListeners();
-    } catch (e) {
-      debugPrint('Error addTask: $e');
-      rethrow;
+  try {
+    var created = await _apiService.addTask(newTask);
+
+    // Buat ID unik lokal kalau API tidak memberi atau ID duplicate
+    final existingIds = _tasks.map((t) => t.id).toSet();
+    int newId = created.id;
+
+    // Jika ID null atau sudah ada, buat ID baru
+    while (existingIds.contains(newId)) {
+      newId = DateTime.now().millisecondsSinceEpoch + existingIds.length;
     }
+
+    created = created.copyWith(id: newId);
+
+    _tasks.insert(0, created);
+    notifyListeners();
+  } catch (e) {
+    debugPrint('Error addTask: $e');
+    rethrow;
   }
+}
+
 
   /// Update tugas (simulasi lokal)
   Future<void> updateTask(Task updatedTask) async {
@@ -64,14 +76,15 @@ class TaskProvider extends ChangeNotifier {
 
   /// Hapus tugas (simulasi lokal)
   Future<void> deleteTask(int id) async {
-    try {
-      await _apiService.deleteTask(id);
-      _tasks.removeWhere((t) => t.id == id);
-      notifyListeners();
-    } catch (e) {
-      _tasks.removeWhere((t) => t.id == id);
-      notifyListeners();
-      debugPrint('Warning deleteTask (simulasi lokal): $e');
-    }
+  debugPrint('Deleting task id=$id');
+  try {
+    await _apiService.deleteTask(id);
+    _tasks.removeWhere((t) => t.id == id);
+    notifyListeners();
+  } catch (e) {
+    debugPrint('Warning deleteTask (simulasi lokal): $e');
   }
+}
+
+
 }

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:tes_aplikasi/providers/task_providers.dart';
-import 'screens/splash_screen.dart'; // ✅ import splash
+import 'screens/splash_screen.dart'; 
 
 void main() {
   runApp(

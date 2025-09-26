@@ -58,6 +58,5 @@ class ApiService {
     if (response.statusCode != 200) {
       throw Exception('Gagal menghapus tugas');
     }
-    // Tidak perlu mengembalikan apa-apa, cukup sukses/hanya throw error jika gagal
   }
 }
